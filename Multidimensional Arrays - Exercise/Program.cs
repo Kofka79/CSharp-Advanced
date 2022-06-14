@@ -1,42 +1,39 @@
 ﻿using System;
 using System.Linq;
 
-namespace _1._Diagonal_Difference
+namespace _2._Squares_in_Matrix
 {
     class Program
     {
         static void Main(string[] args)
         {
-            int n = int.Parse(Console.ReadLine());
+            int[] dimensions = Console.ReadLine().Split(" ")
+                                .Select(int.Parse).ToArray();
+            int rowsCount = dimensions[0];
+            int colsCount = dimensions[1];
+            string[,] matrix = new string[rowsCount, colsCount];
 
-            int[,] matrix = new int[n, n];
-
-            for (int row = 0; row < n; row++)
+            for (int row = 0; row < rowsCount; row++)
             {
-                int[] line = Console.ReadLine().Split(" ")
-                              .Select(int.Parse).ToArray();
-                for (int col = 0; col < n; col++)
+                string[] line = Console.ReadLine().Split();
+                for (int col = 0; col < colsCount; col++)
                 {
                     matrix[row, col] = line[col];
                 }
             }
-            int sum1 = 0;
-            int sum2 = 0;
-            for (int row = 0; row < n; row++)
+            int count = 0;
+            for (int row = 0; row < rowsCount-1; row++)
             {
-                for (int col = 0; col < n; col++)
+                for (int col = 0; col < colsCount-1; col++)
                 {
-                    if (row == col)
+                    if (matrix[row,col]==matrix[row,col+1]&& matrix[row, col] == matrix[row+1, col]
+                       && matrix[row, col]==matrix[row+1,col+1] )
                     {
-                        sum1 += matrix[row, col];
-                    }
-                    if (row+col==n-1)
-                    {
-                        sum2 += matrix[row, col];
+                        count++;
                     }
                 }
             }
-            Console.WriteLine(Math.Abs(sum1-sum2));
+            Console.WriteLine(count);
         }
     }
 }
