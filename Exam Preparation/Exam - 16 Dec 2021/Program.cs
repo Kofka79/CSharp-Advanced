@@ -1,91 +1,112 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace _01._Blacksmith
+namespace _02._Armory
 {
     class Program
     {
         static void Main(string[] args)
         {
-            int[] steel = Console.ReadLine()
-                            .Split(" ")
-                            .Select(int.Parse)
-                            .ToArray();
-            int[] carbon = Console.ReadLine()
-                            .Split(" ")
-                            .Select(int.Parse)
-                            .ToArray();
-            Stack<int> carbonStack = new Stack<int>(carbon);
-            Queue<int> steelQueue = new Queue<int>(steel);
-            Dictionary<int, string> swords = new Dictionary<int, string>
-            {
-                {70, "Gladius"},
-                {80, "Shamshir"},
-                {90, "Katana"},
-                {110, "Sabre" },
-                {150, "Broadsword" }
-            };
-            Dictionary<string, int> made = new Dictionary<string, int>();
-            int sum = 0;
+            int n = int.Parse(Console.ReadLine());
+            char[,] field = new char[n, n];
+            int officerRow = 0;
+            int officerCol = 0;
+            int firstMirrorRow = 0;
+            int firstMirrorCol = 0;
+            int secondMirrorRow = 0;
+            int secondMirrorCol = 0;
+            int count = 0;
 
-            while (carbonStack.Count > 0 && steelQueue.Count > 0)
+            int price = 0;
+
+            for (int row = 0; row < n; row++)
             {
-                int currCarbon = carbonStack.Peek();
-                int currSteel = steelQueue.Peek();
-                sum = currCarbon + currSteel;
-                if (swords.ContainsKey(sum))
+                char[] inputData = Console.ReadLine().ToCharArray();
+                for (int col = 0; col < n; col++)
                 {
-                    if (!made.ContainsKey(swords[sum]))
+                    field[row, col] = inputData[col];
+                    if (field[row,col]=='A')
                     {
-                        made.Add(swords[sum], 1);
+                        officerRow = row;
+                        officerCol = col;
                     }
-                    else
+                    if (field[row,col]=='M' && count==0)
                     {
-                        made[swords[sum]]++;
+                        firstMirrorRow = row;
+                        firstMirrorCol = col;
+                        count++;
                     }
-                    steelQueue.Dequeue();
-                    carbonStack.Pop();
+                    else if (field[row, col] == 'M' && count == 1)
+                    {
+                        secondMirrorRow = row;
+                        secondMirrorCol = col;
+                    }
+                }
+            }
+
+            //Move
+            while (true)
+            {
+                string command = Console.ReadLine();
+
+                field[officerRow, officerCol] = '-';
+                if (command=="up" && officerRow-1>=0)
+                {
+                    officerRow--;
+                }
+                else if (command=="down" && officerRow+1<n)
+                {
+                    officerRow++;
+                }
+                else if (command=="left" && officerCol-1>=0)
+                {
+                    officerCol--;
+                }
+                else if (command=="right" && officerCol+1<n)
+                {
+                    officerCol++;
                 }
                 else
                 {
-                    steelQueue.Dequeue();
-                    currCarbon += 5;
-                    carbonStack.Pop();
-                    carbonStack.Push(currCarbon);
+                    Console.WriteLine("I do not need more swords!");
+                    break;
                 }
-            }
-            int count = made.Values.Sum();
-            if (made.Count>0)
-            {
-                Console.WriteLine($"You have forged {count} swords.");
-            }
-            else
-            {
-                Console.WriteLine($"You did not have enough resources to forge a sword.");
-            }
-            if (steelQueue.Count>0)
-            {
-                Console.WriteLine($"Steel left: {string.Join(", ", steelQueue)}");
-            }
-            else
-            {
-                Console.WriteLine($"Steel left: none");
-            }
-            if (carbonStack.Count>0)
-            {
-                Console.WriteLine($"Carbon left: {string.Join(", ", carbonStack)}");
-            }
-            else
-            {
-                Console.WriteLine($"Carbon left: none");
-            }
-            if (made.Count>0)
-            {
-                foreach (var sword in made.OrderBy(x=>x.Key))
+                
+
+                if (Char.IsDigit(field[officerRow,officerCol]))
                 {
-                    Console.WriteLine($"{sword.Key}: {sword.Value}");
+                    price += field[officerRow, officerCol]- '0';
+                    if (price>=65)
+                    {
+                        field[officerRow, officerCol] = 'A';
+                        Console.WriteLine("Very nice swords, I will come back for more!");
+                        break;
+                    }
                 }
+                if (field[officerRow,officerCol]=='M')
+                {
+                    field[officerRow, officerCol] = '-';
+                    if (officerRow==firstMirrorRow)
+                    {
+                        officerRow = secondMirrorRow;
+                        officerCol = secondMirrorCol;
+                    }
+                    else
+                    {
+                        officerRow = firstMirrorRow;
+                        officerCol = secondMirrorCol;
+                    }
+                    field[officerRow, officerCol] = '-';
+                }
+                field[officerRow, officerCol] = 'A';
+            }
+            Console.WriteLine($"The king paid {price} gold coins.");
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    Console.Write(field[i,j]);
+                }
+                Console.WriteLine();
             }
         }
     }
