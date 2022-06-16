@@ -1,97 +1,114 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace _01._Cooking
+namespace _02._Selling
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Queue<int> liquids = new Queue<int>(Console.ReadLine().Split(" ").
-                Select(int.Parse));
-            Stack<int>ingredients=new Stack<int>(Console.ReadLine().Split(" ").
-                Select(int.Parse));
-            int sum = 0;
-            int breadCount = 0;
-            int cakeCount = 0;
-            int pastryCount = 0;
-            int fruitPieCount = 0;
-            //Bread   25
-            //Cake    50
-            //Pastry  75
-            //Fruit Pie   100
+            int n = int.Parse(Console.ReadLine());
+            char[,] field = new char[n, n];
+            int sellRow = 0;
+            int sellCol = 0;
+            int pilarRow1 = 0;
+            int pilarCol1 = 0;
+            int pilarRow2 = 0;
+            int pilarCol2 = 0;
+            int count = 0;
+            int collectedMoney = 0;
+                
 
-            while (liquids.Count>0&&ingredients.Count>0)
+            for (int row = 0; row < n; row++)
             {
-                int currLiquid = liquids.Peek();
-                int currIngredient = ingredients.Peek();
-                sum = currLiquid + currIngredient;
-                if (sum==25)
+                char[] input = Console.ReadLine().ToCharArray();
+                for (int col = 0; col < n; col++)
                 {
-                    breadCount++;
-                    liquids.Dequeue();
-                    ingredients.Pop();
+                    field[row, col] = input[col];
+                    if (field[row,col]=='S')
+                    {
+                        sellRow = row;
+                        sellCol = col;
+                    }
+                    if (field[row,col]=='O'&&count==0)
+                    {
+                        pilarRow1 = row;
+                        pilarCol1 = col;
+                    }
+                    else if (field[row, col] == 'O' && count == 1)
+                    {
+                        pilarRow2 = row;
+                        pilarCol2 = col;
+                    }
                 }
-                else if (sum==50)
+            }
+            while (true)
+            {
+                string command=Console.ReadLine();
+                field[sellRow, sellCol] = '-';
+                if (command=="up"&&sellRow-1>=0)
                 {
-                    cakeCount++;
-                    liquids.Dequeue();
-                    ingredients.Pop();
+                    sellRow--;
                 }
-                else if (sum==75)
+                else if (command=="down"&&sellRow+1<n)
                 {
-                    pastryCount++;
-                    liquids.Dequeue();
-                    ingredients.Pop();
+                    sellRow++;
                 }
-                else if (sum==100)
+                else if (command=="left"&&sellCol-1>=0)
                 {
-                    fruitPieCount++;
-                    liquids.Dequeue();
-                    ingredients.Pop();
+                    sellCol--;
+                }
+                else if (command=="right"&&sellCol+1<n)
+                {
+                    sellCol++;
                 }
                 else
                 {
-                    liquids.Dequeue();
-                    currIngredient += 3;
-                    ingredients.Pop();
-                    ingredients.Push(currIngredient);
+                    Console.WriteLine("Bad news, you are out of the bakery.");
+                    break;
+                }
+
+                if (field[sellRow,sellCol]=='O')
+                {
+                    if (sellRow == pilarRow1)
+                    {
+                        field[sellRow, sellCol] = '-';
+                        sellRow = pilarRow2;
+                        sellCol = pilarCol2;
+                        field[sellRow, sellCol] = '-';
+                    }
+                    else if (sellRow == pilarRow2)
+                    {
+                        field[sellRow, sellCol] = '-';
+                        sellRow = pilarRow1;
+                        sellCol = pilarCol1;
+                        field[sellRow, sellCol] = '-';
+                    }
 
                 }
+                if (Char.IsDigit(field[sellRow,sellCol]))
+                {
+                    collectedMoney += field[sellRow, sellCol]-'0';
+                    if (collectedMoney>=50)
+                    {
+                        field[sellRow, sellCol] = 'S';
+                        break;
+                    }
+                }
+                field[sellRow, sellCol] = 'S';
             }
-            if (breadCount>=1&&pastryCount>=1&&fruitPieCount>=1&&cakeCount>=1)
+            if (collectedMoney>=50)
             {
-                Console.WriteLine("Wohoo! You succeeded in cooking all the food!");
+                Console.WriteLine("Good news! You succeeded in collecting enough money!");
             }
-            else
+            Console.WriteLine($"Money: {collectedMoney}");
+            for (int i = 0; i < n; i++)
             {
-                Console.WriteLine("Ugh, what a pity! You didn't have enough materials to cook everything.");
+                for (int j = 0; j < n; j++)
+                {
+                    Console.Write(field[i,j]);
+                }
+                Console.WriteLine();
             }
-            if (liquids.Count<=0)
-            {
-                Console.WriteLine("Liquids left: none");
-            }
-            else
-            {
-                Console.WriteLine($"Liquids left: {string.Join(", ", liquids)}");
-            }
-            if (ingredients.Count<=0)
-            {
-                Console.WriteLine("Ingredients left: none");
-            }
-            else
-            {
-                Console.WriteLine($"Ingredients left: {string.Join(", ", ingredients)}");
-            }
-            //o   "Bread: {amount}"
-            //o   "Cake: {amount}"
-            //o   "Fruit Pie: {amount}"
-            //o   "Pastry: {amount}"
-            Console.WriteLine($"Bread: {breadCount}");
-            Console.WriteLine($"Cake: {cakeCount}");
-            Console.WriteLine($"Fruit Pie: {fruitPieCount}");
-            Console.WriteLine($"Pastry: {pastryCount}");
         }
     }
 }
