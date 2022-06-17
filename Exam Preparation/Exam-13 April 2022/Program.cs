@@ -1,90 +1,144 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace _01._Meal_Plan
+namespace _02._Truffel_Hunter
 {
     class Program
     {
         static void Main(string[] args)
         {
-            string[] meals = Console.ReadLine().Split();
-            int[] dailyIntake = Console.ReadLine().Split().Select(int.Parse).ToArray();
-            Queue<string> mealsQueue = new Queue<string>(meals);
-            Stack<int> dailyCaloriesStack = new Stack<int>(dailyIntake);
-
-            
-            int leftMealCal = 0;
-
-            int numberOfMeals = 0;
-            int currentCalories = 0;
-            while (mealsQueue.Count > 0 && dailyCaloriesStack.Count > 0)
+            int n = int.Parse(Console.ReadLine());
+            char[,] matrix = new char[n, n];
+            for (int row = 0; row < n; row++)
             {
-
-                currentCalories = dailyCaloriesStack.Pop();
-
-
-                while (currentCalories > 0 && mealsQueue.Any())
+                char[] input = Console.ReadLine()
+                    .Replace(" ", string.Empty).ToCharArray();
+                for (int col = 0; col < n; col++)
                 {
-                    string currentMeal = mealsQueue.Dequeue();
-                    numberOfMeals++;
-                    currentCalories -= EatMeal(currentMeal);
-                   
+                    matrix[row, col] = input[col];
+                }    
+            }
+            int blackTruffleCounter = 0;
+            int summerTruffleCounter = 0;
+            int whiteTruffleCounter = 0;
+            int wildTruffleCounter = 0;
+
+            string commandLine;
+            while ((commandLine=Console.ReadLine())!= "Stop the hunt")
+            {
+                string[] commandParts = commandLine.Split();
+                string command = commandParts[0];
+                int row = int.Parse(commandParts[1]);
+                int col = int.Parse(commandParts[2]);
+                if (command== "Collect")
+                {
+                    if (matrix[row,col]=='B')
+                    {
+                        blackTruffleCounter++;
+                        matrix[row, col] = '-';
+                    }
+                    else if (matrix[row, col] == 'W')
+                    {
+                        whiteTruffleCounter++;
+                        matrix[row, col] = '-';
+                    }
+                    else if (matrix[row, col] == 'S')
+                    {
+                        summerTruffleCounter++;
+                        matrix[row, col] = '-';
+                    }
                 }
-                        if (currentCalories < 0 )
+                else if (command== "Wild_Boar")
+                {
+                    string direction = commandParts[3];
+                    if (direction=="up")
+                    {
+                        while (IsRowValid(row, n))
                         {
-                            leftMealCal = currentCalories;
-                                if (dailyCaloriesStack.Any())
-                                {
-                                    int nextDay = dailyCaloriesStack.Pop();
-                                    dailyCaloriesStack.Push(nextDay + currentCalories);
-                                }
-                            
+                            if (HasEaten(row, col, matrix))
+                            {
+                                wildTruffleCounter++;
+                            }
+                            row -= 2;
+                        }
+                        
+                    }
+                    else if (direction=="down")
+                    {
+                        while (IsRowValid(row,n))
+                        {
+                            if (HasEaten(row, col, matrix))
+                            {
+                                wildTruffleCounter++;
+                            }
+                            row += 2;
                         }
 
-                        if (!mealsQueue.Any() && currentCalories>0)
+                    }
+                    else if (direction=="left")
+                    {
+                        while (IsColValid(col,n))
                         {
-                            dailyCaloriesStack.Push(currentCalories);
+                            if (HasEaten(row, col, matrix))
+                            {
+                                wildTruffleCounter++;
+                            }
+                            col -= 2;
                         }
                     }
-                
-
-
-
-            
-            if (mealsQueue.Count == 0)
-            {
-                Console.WriteLine($"John had {numberOfMeals} meals.");
-                Console.WriteLine($"For the next few days, he can eat" +
-                    $" {string.Join(", ", dailyCaloriesStack)} calories.");
+                    else if (direction=="right")
+                    {
+                        while (IsColValid(col,n))
+                        {
+                            if (HasEaten(row, col, matrix))
+                            {
+                                wildTruffleCounter++;
+                            }
+                            col += 2;
+                        }
+                    }
+                }
             }
-            else if (dailyCaloriesStack.Count== 0)
+            Console.WriteLine($"Peter manages to harvest" +
+                $" {blackTruffleCounter} black, {summerTruffleCounter} summer," +
+                $" and {whiteTruffleCounter} white truffles.");
+            Console.WriteLine($"The wild boar has eaten {wildTruffleCounter} truffles.");
+            for (int i = 0; i < n; i++)
             {
-                Console.WriteLine($"John ate enough, he had {numberOfMeals} meals.");
-                Console.WriteLine($"Meals left: {string.Join(", ", mealsQueue)}.");
+                for (int j = 0; j < n; j++)
+                {
+                    Console.Write(matrix[i, j] + " ");
+                }
+                Console.WriteLine();
             }
         }
 
-        private static int EatMeal(string meal)
+        private static bool HasEaten(int row, int col, char[,] matrix)
         {
-            int calories = 0;
-            if (meal == "salad")
+            char currSymbol = matrix[row, col];
+            if (currSymbol=='S' || currSymbol=='B' || currSymbol=='W')
             {
-                calories = 350;
+                matrix[row, col] = '-';
+                return true;
             }
-            if (meal == "soup")
+            return false;
+        }
+
+        private static bool IsColValid(int col, int n)
+        {
+            if (col >= 0 && col < n)
             {
-                calories = 490;
+                return true;
             }
-            if (meal == "pasta")
+            return false;
+        }
+
+        private static bool IsRowValid(int row, int n)
+        {
+            if (row>=0 && row<n)
             {
-                calories = 680;
+                return true;
             }
-            if (meal == "steak")
-            {
-                calories = 790;
-            }
-            return calories;
+            return false;
         }
     }
 }
