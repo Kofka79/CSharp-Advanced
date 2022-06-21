@@ -1,54 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Scheduling
+namespace _02._Garden
 {
     class Program
     {
         static void Main(string[] args)
         {
-            int[] tasks = Console.ReadLine()
-                            .Split(", ")
-                            .Select(int.Parse)
-                            .ToArray();
-            int[] threads = Console.ReadLine()
-                            .Split(" ")
-                            .Select(int.Parse)
-                            .ToArray();
-            Stack<int> taskStack = new Stack<int>(tasks);
-            Queue<int> threadQueue = new Queue<int>(threads);
-            
-            int taskToKill = int.Parse(Console.ReadLine());
+            string[] dimension = Console.ReadLine()
+                .Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            int rowsCount = int.Parse(dimension[0]);
+            int colsCount = int.Parse(dimension[1]);
+            int[,] matrix = new int[rowsCount, colsCount];
 
-            while (true)
+            for (int row = 0; row < rowsCount; row++)
             {
-                int currTask = taskStack.Peek();
-                int currThread = threadQueue.Peek();
-
-                if (currTask != taskToKill)
+                for (int col = 0; col < colsCount; col++)
                 {
-                    if (currThread >= currTask)
+                    matrix[row, col] =0;
+                }
+            }
+            string command;
+            while ((command=Console.ReadLine())!="Bloom Bloom Plow")
+            {
+                string[] flowers = command
+                .Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                int firstFlower = int.Parse(flowers[0]);
+                int secondFlower = int.Parse(flowers[1]);
+                if (firstFlower<rowsCount&&secondFlower<colsCount)
+                {
+                    for (int i = 0; i < rowsCount; i++)
                     {
-                        taskStack.Pop();
-                        threadQueue.Dequeue();
+                        matrix[i, secondFlower] ++;
                     }
-                    else
+                    for (int j = 0; j < colsCount; j++)
                     {
-                        threadQueue.Dequeue();
+                        matrix[firstFlower, j]++;
                     }
+                    matrix[firstFlower, secondFlower] -= 1;
                 }
                 else
                 {
-                    Console.WriteLine($"Thread with value {currThread} killed task {taskToKill}");
-                    Console.Write(string.Join(' ', threadQueue));
-                    return;
-                    
+                    Console.WriteLine($"Invalid coordinates.");
                 }
                 
+                
             }
-            
+            for (int m = 0; m < rowsCount; m++)
+            {
+                for (int l = 0; l < colsCount; l++)
+                {
+                    Console.Write(matrix[m,l]+" ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 }
-
